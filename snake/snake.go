@@ -14,9 +14,16 @@ const (
 )
 
 type Snake struct {
-	XPos        int
-	YPos        int
+	Body        []BodyElement
 	Orientation Direction
+}
+
+func New(xPos int, yPos int, orientation Direction) *Snake {
+	body := []BodyElement{*NewBodyElement(xPos, yPos)}
+
+	snake := Snake{body, orientation}
+
+	return &snake
 }
 
 func (s *Snake) UpdateOrientation() {
@@ -31,15 +38,40 @@ func (s *Snake) UpdateOrientation() {
 	}
 }
 
-func (s *Snake) Move() {
+func (s *Snake) CalculateNextTile() (int, int) {
+	headX := s.Body[0].XPos
+	headY := s.Body[0].YPos
+
 	switch s.Orientation {
 	case Up:
-		s.YPos -= 1
+		headY -= 1
 	case Right:
-		s.XPos += 1
+		headX += 1
 	case Down:
-		s.YPos += 1
+		headY += 1
 	case Left:
-		s.XPos -= 1
+		headX -= 1
 	}
+
+	return headX, headY
+}
+
+func (s *Snake) Move(newX, newY int) {
+	s.Body = moveLastToFirst(s.Body)
+	s.Body[0].XPos = newX
+	s.Body[0].YPos = newY
+}
+
+func moveLastToFirst(body []BodyElement) []BodyElement {
+	if len(body) <= 1 {
+		return body
+	}
+
+	lastBodyElement := body[len(body)-1]
+
+	copy(body[1:], body[:len(body)-1])
+
+	body[0] = lastBodyElement
+
+	return body
 }

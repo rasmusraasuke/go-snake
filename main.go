@@ -1,7 +1,10 @@
 package main
 
 import (
+	"errors"
 	_ "image/png"
+
+	"math/rand/v2"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -10,20 +13,20 @@ import (
 	"log"
 )
 
-type GridValue int
+const GRID_SIZE = 20
+
+type FoodType int
 
 const (
-	Empty GridValue = iota
-	Snake
-	Wall
-	Food
+	Cherry FoodType = iota + 1
 )
 
-const GRID_SIZE = 102
+type Coordinate struct {
+	X, Y int
+}
 
 var square *ebiten.Image
 var background *ebiten.Image
-var grid = make([][]GridValue, GRID_SIZE)
 var wait = 0
 
 func init() {
@@ -38,51 +41,65 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	for i := range grid {
-		grid[i] = make([]GridValue, GRID_SIZE)
-		for j := range grid[i] {
-			if i == 0 || j == 0 || i == GRID_SIZE-1 || j == GRID_SIZE-1 {
-				grid[i][j] = Wall
-			} else {
-				grid[i][j] = Empty
-			}
-		}
-	}
-	grid[1][1] = Snake
 }
 
 type Game struct {
 	snake snake.Snake
+	food  map[Coordinate]FoodType
 }
 
 func (g *Game) Update() error {
 	g.snake.UpdateOrientation()
 
-	//if wait < 60 {
-	//	wait++
-	//	return nil
-	//}
-	//wait = 0
+	if len(g.food) == 0 {
+		g.food[Coordinate{3, 3}] = Cherry
+	}
 
-	grid[g.snake.YPos][g.snake.XPos] = Empty
-	g.snake.Move()
-	grid[g.snake.YPos][g.snake.XPos] = Snake
+	if wait < 10 {
+		wait++
+		return nil
+	}
+	wait = 0
 
-	log.Println("Snake orientation:", g.snake.Orientation)
-	log.Println("Snake position:", g.snake.XPos, g.snake.YPos)
+	newX, newY := g.snake.CalculateNextTile()
+	if newX < 0 || newY < 0 || newX >= GRID_SIZE || newY >= GRID_SIZE {
+		return errors.New("Snake hit it's head against the wall!")
+	}
+
+	g.snake.Move(newX, newY)
 
 	return nil
 }
 
+func DrawBoard(boardImage *ebiten.Image) {
+
+}
+
 func (g *Game) Draw(screen *ebiten.Image) {
+	imageSize := background.Bounds().Size()
+
+	tileX := screen.Bounds().Dx() / GRID_SIZE
+	tileY := screen.Bounds().Dy() / GRID_SIZE
+
+	tileXScale := float64(tileX) / float64(imageSize.X)
+	tileYScale := float64(tileY) / float64(imageSize.Y)
+
+	for j := range GRID_SIZE {
+		for i := range GRID_SIZE {
+			op := &ebiten.DrawImageOptions{}
+			x := i * tileX
+			y := j * tileY
+			op.GeoM.Scale(tileXScale, tileYScale)
+			op.GeoM.Translate(float64(x), float64(y))
+			screen.DrawImage(background, op)
+		}
+	}
+
+	newXCord := float64((tileX) * g.snake.Body[0].XPos)
+	newYCord := float64((tileY) * g.snake.Body[0].YPos)
+
 	op := &ebiten.DrawImageOptions{}
-
-	newXCord := float64((screen.Bounds().Dx() / GRID_SIZE) * g.snake.XPos)
-	newYCord := float64((screen.Bounds().Dy() / GRID_SIZE) * g.snake.YPos)
-	//log.Println("Drawing snake at", newXCord, newYCord)
-
-	op.GeoM.Scale(0.2, 0.2)
+	op.GeoM.Scale(tileXScale, tileYScale)
 	op.GeoM.Translate(newXCord, newYCord)
 
 	screen.DrawImage(square, op)
@@ -93,10 +110,18 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 }
 
 func main() {
-	ebiten.SetWindowSize(640, 480)
-	ebiten.SetWindowTitle("Hello, World!")
+	ebiten.SetWindowSize(1000, 1000)
+	ebiten.SetWindowTitle("Go Snake")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
-	if err := ebiten.RunGame(&Game{snake: snake.Snake{XPos: 1, YPos: 1, Orientation: snake.Right}}); err != nil {
+
+	startX := int(GRID_SIZE / 2)
+	startY := int(GRID_SIZE / 2)
+	startOrient := rand.IntN(4)
+
+	snake := snake.New(startX, startY, snake.Direction(startOrient))
+	food := make(map[Coordinate]FoodType)
+
+	if err := ebiten.RunGame(&Game{*snake, food}); err != nil {
 		log.Fatal(err)
 	}
 }
