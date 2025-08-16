@@ -75,6 +75,12 @@ func (g *Game) Update() error {
 		return errors.New("Snake hit it's head against the wall!")
 	}
 
+	for i, bodyElement := range g.snake.Body {
+		if bodyElement.XPos == newX && bodyElement.YPos == newY && i != len(g.snake.Body)-1 {
+			return errors.New("Snake hit itself!")
+		}
+	}
+
 	coordiate := Coordinate{newX, newY}
 	switch g.food[coordiate] {
 	case 0:
