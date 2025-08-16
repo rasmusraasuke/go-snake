@@ -27,6 +27,7 @@ type Coordinate struct {
 
 var square *ebiten.Image
 var background *ebiten.Image
+var cherry *ebiten.Image
 var wait = 0
 
 func init() {
@@ -41,6 +42,11 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	cherry, _, err = ebitenutil.NewImageFromFile("assets/cherry.png")
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 type Game struct {
@@ -49,10 +55,13 @@ type Game struct {
 }
 
 func (g *Game) Update() error {
-	g.snake.UpdateOrientation()
+	g.snake.UpdatePendingOrientation()
 
 	if len(g.food) == 0 {
-		g.food[Coordinate{3, 3}] = Cherry
+		randX := rand.IntN(GRID_SIZE)
+		randY := rand.IntN(GRID_SIZE)
+		g.food[Coordinate{randX, randY}] = Cherry
+		log.Printf("Cherry now at [%d; %d]\n", randX, randY)
 	}
 
 	if wait < 10 {
@@ -66,7 +75,14 @@ func (g *Game) Update() error {
 		return errors.New("Snake hit it's head against the wall!")
 	}
 
-	g.snake.Move(newX, newY)
+	coordiate := Coordinate{newX, newY}
+	switch g.food[coordiate] {
+	case 0:
+		g.snake.Move(newX, newY)
+	case Cherry:
+		g.snake.EatCherry(newX, newY)
+		delete(g.food, coordiate)
+	}
 
 	return nil
 }
@@ -76,13 +92,16 @@ func DrawBoard(boardImage *ebiten.Image) {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	imageSize := background.Bounds().Size()
+	backgroundSize := background.Bounds().Size()
+	cherrySize := cherry.Bounds().Size()
 
 	tileX := screen.Bounds().Dx() / GRID_SIZE
 	tileY := screen.Bounds().Dy() / GRID_SIZE
 
-	tileXScale := float64(tileX) / float64(imageSize.X)
-	tileYScale := float64(tileY) / float64(imageSize.Y)
+	tileXScale := float64(tileX) / float64(backgroundSize.X)
+	tileYScale := float64(tileY) / float64(backgroundSize.Y)
+	cherryXScale := float64(tileX) / float64(cherrySize.X)
+	cherryYScale := float64(tileY) / float64(cherrySize.Y)
 
 	for j := range GRID_SIZE {
 		for i := range GRID_SIZE {
@@ -95,14 +114,24 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	}
 
-	newXCord := float64((tileX) * g.snake.Body[0].XPos)
-	newYCord := float64((tileY) * g.snake.Body[0].YPos)
+	for cords, _ := range g.food {
+		op := &ebiten.DrawImageOptions{}
+		x := tileX * cords.X
+		y := tileY * cords.Y
+		op.GeoM.Scale(cherryXScale, cherryYScale)
+		op.GeoM.Translate(float64(x), float64(y))
+		screen.DrawImage(cherry, op)
 
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(tileXScale, tileYScale)
-	op.GeoM.Translate(newXCord, newYCord)
+	}
 
-	screen.DrawImage(square, op)
+	for _, bodyElement := range g.snake.Body {
+		op := &ebiten.DrawImageOptions{}
+		x := tileX * bodyElement.XPos
+		y := tileY * bodyElement.YPos
+		op.GeoM.Scale(tileXScale, tileYScale)
+		op.GeoM.Translate(float64(x), float64(y))
+		screen.DrawImage(square, op)
+	}
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
