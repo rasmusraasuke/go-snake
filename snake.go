@@ -1,7 +1,9 @@
-package snake
+package main
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"log"
 )
 
 type Direction int
@@ -17,12 +19,19 @@ type Snake struct {
 	Body               []BodyElement
 	orientation        Direction
 	pendingOrientation Direction
+
+	asset *ebiten.Image
 }
 
-func New(xPos int, yPos int, orient Direction) *Snake {
+func NewSnake(xPos int, yPos int, orient Direction) *Snake {
+	image, _, err := ebitenutil.NewImageFromFile("assets/square.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	body := []BodyElement{*NewBodyElement(xPos, yPos)}
 
-	snake := Snake{body, orient, orient}
+	snake := Snake{body, orient, orient, image}
 
 	return &snake
 }
@@ -81,4 +90,15 @@ func moveLastToFirst(body []BodyElement) []BodyElement {
 	body[0] = lastBodyElement
 
 	return body
+}
+
+func (s *Snake) Draw(screen *ebiten.Image) {
+	for _, bodyElement := range s.Body {
+		op := &ebiten.DrawImageOptions{}
+		x := TILE_SIZE * bodyElement.XPos
+		y := TILE_SIZE * bodyElement.YPos
+		op.GeoM.Scale(tileXScale, tileYScale)
+		op.GeoM.Translate(float64(x), float64(y))
+		screen.DrawImage(s.asset, op)
+	}
 }
