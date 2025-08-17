@@ -18,13 +18,13 @@ type SnakeGame struct {
 	wait      int
 }
 
-func NewSnakeGame() *SnakeGame {
+func NewSnakeGame(input InputType) *SnakeGame {
 	startX := int(GRID_SIZE / 2)
 	startY := int(GRID_SIZE / 2)
 	startOrient := rand.IntN(4)
 
 	grid := NewSnakeGrid()
-	snake := NewSnake(startX, startY, Direction(startOrient))
+	snake := NewSnake(startX, startY, Direction(startOrient), input)
 	food := make(map[Coordinate]Food)
 	wait := 0
 
@@ -47,7 +47,7 @@ func (g *SnakeGame) Update() error {
 	}
 	g.wait = 0
 
-	newX, newY := g.snake.CalculateNextTile()
+	newX, newY := g.snake.CalculateNextPos()
 	if newX < 0 || newY < 0 || newX >= GRID_SIZE || newY >= GRID_SIZE {
 		return errors.New("Snake hit it's head against the wall!")
 	}
@@ -58,7 +58,7 @@ func (g *SnakeGame) Update() error {
 		}
 	}
 
-	coordiate := Coordinate{newX, newY}
+	coordiate := Coordinate{int(newX), int(newY)}
 	switch g.food[coordiate].Type {
 	case 0:
 		g.snake.Move(newX, newY)

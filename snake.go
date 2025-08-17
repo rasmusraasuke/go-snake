@@ -6,24 +6,16 @@ import (
 	"log"
 )
 
-type Direction int
-
-const (
-	Up Direction = iota
-	Right
-	Down
-	Left
-)
-
 type Snake struct {
 	Body               []BodyElement
 	orientation        Direction
 	pendingOrientation Direction
+	keys               map[Direction]ebiten.Key
 
 	asset *ebiten.Image
 }
 
-func NewSnake(xPos int, yPos int, orient Direction) *Snake {
+func NewSnake(xPos, yPos int, orient Direction, input InputType) *Snake {
 	image, _, err := ebitenutil.NewImageFromFile("assets/square.png")
 	if err != nil {
 		log.Fatal(err)
@@ -31,24 +23,50 @@ func NewSnake(xPos int, yPos int, orient Direction) *Snake {
 
 	body := []BodyElement{*NewBodyElement(xPos, yPos)}
 
-	snake := Snake{body, orient, orient, image}
+	keys := setKeys(input)
+
+	snake := Snake{body, orient, orient, keys, image}
 
 	return &snake
 }
 
+func setKeys(input InputType) map[Direction]ebiten.Key {
+	keys := make(map[Direction]ebiten.Key)
+
+	switch input {
+	case WASD:
+		keys[Up] = ebiten.KeyW
+		keys[Right] = ebiten.KeyD
+		keys[Down] = ebiten.KeyS
+		keys[Left] = ebiten.KeyA
+	case ARROWS:
+		keys[Up] = ebiten.KeyUp
+		keys[Right] = ebiten.KeyRight
+		keys[Down] = ebiten.KeyDown
+		keys[Left] = ebiten.KeyLeft
+	case VIM:
+		keys[Up] = ebiten.KeyK
+		keys[Right] = ebiten.KeyL
+		keys[Down] = ebiten.KeyJ
+		keys[Left] = ebiten.KeyH
+	}
+
+	return keys
+}
+
 func (s *Snake) UpdatePendingOrientation() {
-	if ebiten.IsKeyPressed(ebiten.KeyW) && s.orientation != Down {
+	if ebiten.IsKeyPressed(s.keys[Up]) && s.orientation != Down {
 		s.pendingOrientation = Up
-	} else if ebiten.IsKeyPressed(ebiten.KeyS) && s.orientation != Up {
+	} else if ebiten.IsKeyPressed(s.keys[Down]) && s.orientation != Up {
 		s.pendingOrientation = Down
-	} else if ebiten.IsKeyPressed(ebiten.KeyA) && s.orientation != Right {
+	} else if ebiten.IsKeyPressed(s.keys[Left]) && s.orientation != Right {
 		s.pendingOrientation = Left
-	} else if ebiten.IsKeyPressed(ebiten.KeyD) && s.orientation != Left {
+	} else if ebiten.IsKeyPressed(s.keys[Right]) && s.orientation != Left {
 		s.pendingOrientation = Right
 	}
 }
 
-func (s *Snake) CalculateNextTile() (int, int) {
+func (s *Snake) CalculateNextPos() (int, int) {
 	headX := s.Body[0].XPos
 	headY := s.Body[0].YPos
 

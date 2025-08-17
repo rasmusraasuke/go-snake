@@ -11,16 +11,16 @@ func init() {
 }
 
 type Main struct {
-	game SnakeGame
+	player Player
 }
 
 func (m *Main) Update() error {
-	error := m.game.Update()
+	error := m.player.game.Update()
 	return error
 }
 
 func (m *Main) Draw(screen *ebiten.Image) {
-	m.game.Draw(screen)
+	m.player.game.Draw(screen)
 }
 
 func (m *Main) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -32,9 +32,9 @@ func main() {
 	ebiten.SetWindowTitle("Go Snake")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 
-	game := NewSnakeGame()
+	player := NewPlayer(ARROWS)
 
-	if err := ebiten.RunGame(&Main{*game}); err != nil {
+	if err := ebiten.RunGame(&Main{player: *player}); err != nil {
 		log.Fatal(err)
 	}
 }

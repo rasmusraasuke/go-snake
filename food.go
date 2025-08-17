@@ -6,12 +6,6 @@ import (
 	"log"
 )
 
-type FoodType int
-
-const (
-	Cherry FoodType = iota + 1
-)
-
 type Food struct {
 	Type  FoodType
 	xPos  int
