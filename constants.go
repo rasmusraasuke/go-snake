@@ -1,7 +1,7 @@
 package main
 
 const GRID_SIZE = 20 // Tiles
-const TILE_SIZE = 50 // Pixels
+const TILE_SIZE = 40 // Pixels
 
 const backgroundSize = 225 // Pixels
 const cherrySize = 360     // Pixels

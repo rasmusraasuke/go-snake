@@ -12,11 +12,11 @@ type Coordinate struct {
 }
 
 type SnakeGame struct {
-	player    Player
-	snakeGrid SnakeGrid
-	snake     Snake
-	food      map[Coordinate]Food
-	wait      int
+	player Player
+	screen *ebiten.Image
+	snake  Snake
+	food   map[Coordinate]Food
+	wait   int
 }
 
 func NewSnakeGame(player Player) *SnakeGame {
@@ -24,12 +24,12 @@ func NewSnakeGame(player Player) *SnakeGame {
 	startY := int(GRID_SIZE / 2)
 	startOrient := rand.IntN(4)
 
-	grid := NewSnakeGrid()
+	screen := ebiten.NewImage(GRID_SIZE*TILE_SIZE, GRID_SIZE*TILE_SIZE)
 	snake := NewSnake(startX, startY, Direction(startOrient), player.inputType)
 	food := make(map[Coordinate]Food)
 	wait := 0
 
-	game := SnakeGame{player, *grid, *snake, food, wait}
+	game := SnakeGame{player, screen, *snake, food, wait}
 	return &game
 }
 
@@ -72,11 +72,18 @@ func (g *SnakeGame) Update() error {
 }
 
 func (g *SnakeGame) Draw(screen *ebiten.Image) {
-	g.snakeGrid.Draw(screen)
-
+	g.screen.DrawImage(snakeGrid, &ebiten.DrawImageOptions{})
 	for _, food := range g.food {
-		food.Draw(screen)
+		food.Draw(g.screen)
 	}
+	g.snake.Draw(g.screen)
 
-	g.snake.Draw(screen)
+	size := screen.Bounds().Size()
+	xMargin := float64((size.X - TILE_SIZE*GRID_SIZE) / 2)
+	yMargin := float64((size.Y - TILE_SIZE*GRID_SIZE) / 2)
+
+	op := ebiten.DrawImageOptions{}
+	op.GeoM.Translate(xMargin, yMargin)
+
+	screen.DrawImage(g.screen, &op)
 }

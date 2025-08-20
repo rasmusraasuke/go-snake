@@ -1,35 +1,26 @@
 package main
 
 import (
+	"image/color"
+
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"log"
+	"github.com/hajimehoshi/ebiten/v2/vector"
+	"golang.org/x/image/colornames"
 )
 
-type SnakeGrid struct {
-	asset *ebiten.Image
-}
-
-func NewSnakeGrid() *SnakeGrid {
-	image, _, err := ebitenutil.NewImageFromFile("assets/background.png")
-	if err != nil {
-		log.Fatal(err)
+func GetGrid() *ebiten.Image {
+	img := ebiten.NewImage(GRID_SIZE*TILE_SIZE, GRID_SIZE*TILE_SIZE)
+	colors := []color.Color{
+		colornames.Mediumseagreen,
+		colornames.Darkseagreen,
 	}
 
-	snakegrid := SnakeGrid{asset: image}
-	return &snakegrid
-}
-
-func (g *SnakeGrid) Draw(screen *ebiten.Image) {
 	for j := range GRID_SIZE {
 		for i := range GRID_SIZE {
-			op := &ebiten.DrawImageOptions{}
-			x := i * TILE_SIZE
-			y := j * TILE_SIZE
-			op.GeoM.Scale(tileXScale, tileYScale)
-			op.GeoM.Translate(float64(x), float64(y))
-			screen.DrawImage(g.asset, op)
+			x := float32(i * TILE_SIZE)
+			y := float32(j * TILE_SIZE)
+			vector.DrawFilledRect(img, x, y, TILE_SIZE, TILE_SIZE, colors[(i+j)%len(colors)], true)
 		}
 	}
+	return img
 }
-

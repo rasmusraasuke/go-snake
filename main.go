@@ -7,6 +7,12 @@ import (
 	"log"
 )
 
+var snakeGrid *ebiten.Image
+
+func init() {
+	snakeGrid = GetGrid()
+}
+
 type Main struct {
 	ui      *ebitenui.UI
 	players []*Player
@@ -47,6 +53,7 @@ func (m *Main) Update() error {
 
 func (m *Main) Draw(screen *ebiten.Image) {
 	m.ui.Draw(screen)
+
 	for _, game := range m.games {
 		game.Draw(screen)
 	}
