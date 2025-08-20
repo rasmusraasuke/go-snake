@@ -36,8 +36,8 @@ func CreateMenu(main *Main) *widget.Container {
 		),
 	)
 
-	multiPlayer := widget.NewButton(
-		widget.ButtonOpts.TextLabel("Multiplayer"),
+	oneVone := widget.NewButton(
+		widget.ButtonOpts.TextLabel("1 VS 1"),
 		widget.ButtonOpts.TextFace(&font),
 		widget.ButtonOpts.TextColor(&widget.ButtonTextColor{
 			Idle:    colornames.Gainsboro,
@@ -82,7 +82,7 @@ func CreateMenu(main *Main) *widget.Container {
 	)
 
 	menuContainer.AddChild(singlePlayer)
-	menuContainer.AddChild(multiPlayer)
+	menuContainer.AddChild(oneVone)
 
 	root.AddChild(menuContainer)
 	return root
