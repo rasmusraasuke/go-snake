@@ -34,7 +34,7 @@ func NewSnakeGame(player Player) *SnakeGame {
 }
 
 func (g *SnakeGame) Update() error {
-	g.snake.UpdatePendingOrientation()
+	g.snake.UpdateMovementQueue()
 
 	if len(g.food) == 0 {
 		randX := rand.IntN(GRID_SIZE)
@@ -54,7 +54,7 @@ func (g *SnakeGame) Update() error {
 	}
 
 	for i, bodyElement := range g.snake.Body {
-		if bodyElement.XPos == newX && bodyElement.YPos == newY && i != len(g.snake.Body)-1 {
+		if i != len(g.snake.Body)-1 && bodyElement.XPos == newX && bodyElement.YPos == newY {
 			return errors.New("Snake hit itself!")
 		}
 	}

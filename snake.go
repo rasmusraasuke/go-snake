@@ -2,23 +2,25 @@ package main
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"golang.org/x/image/colornames"
 )
 
 type Snake struct {
-	Body               []BodyElement
-	orientation        Direction
-	pendingOrientation Direction
-	keys               map[Direction]ebiten.Key
+	Body          []BodyElement
+	orientation   Direction
+	movementQueue []Direction
+	keys          map[Direction]ebiten.Key
 }
 
 func NewSnake(xPos, yPos int, orient Direction, input InputType) *Snake {
 	body := []BodyElement{*NewBodyElement(xPos, yPos)}
 
 	keys := setKeys(input)
+	queue := new([]Direction)
 
-	snake := Snake{body, orient, orient, keys}
+	snake := Snake{body, orient, *queue, keys}
 
 	return &snake
 }
@@ -47,23 +49,48 @@ func setKeys(input InputType) map[Direction]ebiten.Key {
 	return keys
 }
 
-func (s *Snake) UpdatePendingOrientation() {
-	if ebiten.IsKeyPressed(s.keys[Up]) && s.orientation != Down {
-		s.pendingOrientation = Up
-	} else if ebiten.IsKeyPressed(s.keys[Down]) && s.orientation != Up {
-		s.pendingOrientation = Down
-	} else if ebiten.IsKeyPressed(s.keys[Left]) && s.orientation != Right {
-		s.pendingOrientation = Left
-	} else if ebiten.IsKeyPressed(s.keys[Right]) && s.orientation != Left {
-		s.pendingOrientation = Right
+func (s *Snake) UpdateMovementQueue() {
+	if inpututil.IsKeyJustPressed(s.keys[Up]) {
+		s.tryAddDirection(Up)
+	} else if inpututil.IsKeyJustPressed(s.keys[Down]) {
+		s.tryAddDirection(Down)
+	} else if inpututil.IsKeyJustPressed(s.keys[Left]) {
+		s.tryAddDirection(Left)
+	} else if inpututil.IsKeyJustPressed(s.keys[Right]) {
+		s.tryAddDirection(Right)
 	}
+}
+
+func (s *Snake) tryAddDirection(newDirection Direction) {
+	oppositeDirection := (newDirection + 2) % 4
+	if s.orientation == oppositeDirection && len(s.movementQueue) == 0 {
+		return
+	}
+
+	if len(s.movementQueue) > 0 {
+		lastQueued := s.movementQueue[len(s.movementQueue)-1]
+		if lastQueued == newDirection || lastQueued == oppositeDirection {
+			return
+		}
+	}
+
+	s.movementQueue = append(s.movementQueue, newDirection)
 }
 
 func (s *Snake) CalculateNextPos() (int, int) {
 	headX := s.Body[0].XPos
 	headY := s.Body[0].YPos
 
-	switch s.pendingOrientation {
+	var newOrientation Direction
+	if len(s.movementQueue) != 0 {
+		newOrientation = s.movementQueue[0]
+		s.movementQueue = s.movementQueue[1:]
+	} else {
+		newOrientation = s.orientation
+	}
+	println("Moving to:", newOrientation, "Movments left in queue:", len(s.movementQueue))
+
+	switch newOrientation {
 	case Up:
 		headY -= 1
 	case Right:
@@ -73,7 +100,7 @@ func (s *Snake) CalculateNextPos() (int, int) {
 	case Left:
 		headX -= 1
 	}
-	s.orientation = s.pendingOrientation
+	s.orientation = newOrientation
 
 	return headX, headY
 }
