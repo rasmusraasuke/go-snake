@@ -11,8 +11,8 @@ import (
 func GetGrid() *ebiten.Image {
 	img := ebiten.NewImage(GRID_SIZE*TILE_SIZE, GRID_SIZE*TILE_SIZE)
 	colors := []color.Color{
-		colornames.Mediumseagreen,
-		colornames.Darkseagreen,
+		colornames.Forestgreen,
+		colornames.Green,
 	}
 
 	for j := range GRID_SIZE {

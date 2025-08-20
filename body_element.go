@@ -1,8 +1,7 @@
 package main
 
 type BodyElement struct {
-	XPos int
-	YPos int
+	XPos, YPos int
 }
 
 func NewBodyElement(x, y int) *BodyElement {

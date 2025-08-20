@@ -107,6 +107,6 @@ func (s *Snake) Draw(screen *ebiten.Image) {
 	for _, bodyElement := range s.Body {
 		x := float32(TILE_SIZE * bodyElement.XPos)
 		y := float32(TILE_SIZE * bodyElement.YPos)
-		vector.DrawFilledRect(screen, x, y, TILE_SIZE, TILE_SIZE, colornames.Steelblue, true)
+		vector.DrawFilledRect(screen, x, y, TILE_SIZE, TILE_SIZE, colornames.Peru, true)
 	}
 }

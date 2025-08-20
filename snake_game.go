@@ -42,7 +42,7 @@ func (g *SnakeGame) Update() error {
 		g.food[Coordinate{randX, randY}] = *NewFood(Cherry, randX, randY)
 	}
 
-	if g.wait < 10 {
+	if g.wait < WAIT_TIME {
 		g.wait++
 		return nil
 	}
