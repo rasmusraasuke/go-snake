@@ -12,23 +12,24 @@ type Coordinate struct {
 }
 
 type SnakeGame struct {
+	player    Player
 	snakeGrid SnakeGrid
 	snake     Snake
 	food      map[Coordinate]Food
 	wait      int
 }
 
-func NewSnakeGame(input InputType) *SnakeGame {
+func NewSnakeGame(player Player) *SnakeGame {
 	startX := int(GRID_SIZE / 2)
 	startY := int(GRID_SIZE / 2)
 	startOrient := rand.IntN(4)
 
 	grid := NewSnakeGrid()
-	snake := NewSnake(startX, startY, Direction(startOrient), input)
+	snake := NewSnake(startX, startY, Direction(startOrient), player.inputType)
 	food := make(map[Coordinate]Food)
 	wait := 0
 
-	game := SnakeGame{*grid, *snake, food, wait}
+	game := SnakeGame{player, *grid, *snake, food, wait}
 	return &game
 }
 
