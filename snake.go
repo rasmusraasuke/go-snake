@@ -88,7 +88,6 @@ func (s *Snake) CalculateNextPos() (int, int) {
 	} else {
 		newOrientation = s.orientation
 	}
-	println("Moving to:", newOrientation, "Movments left in queue:", len(s.movementQueue))
 
 	switch newOrientation {
 	case Up:

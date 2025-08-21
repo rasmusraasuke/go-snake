@@ -39,6 +39,16 @@ func (m *Main) StartSinglePlayer() {
 	m.games = append(m.games, game)
 }
 
+func (m *Main) StartTwoPlayers() {
+	player1 := NewPlayer(WASD)
+	player2 := NewPlayer(ARROWS)
+	game1 := NewSnakeGame(*player1)
+	game2 := NewSnakeGame(*player2)
+
+	m.players = append(m.players, player1, player2)
+	m.games = append(m.games, game1, game2)
+}
+
 func (m *Main) Update() error {
 	m.ui.Update()
 	for _, game := range m.games {
@@ -54,9 +64,21 @@ func (m *Main) Update() error {
 func (m *Main) Draw(screen *ebiten.Image) {
 	m.ui.Draw(screen)
 
-	for _, game := range m.games {
-		game.Draw(screen)
+	size := screen.Bounds().Size()
+	marginX := (size.X - GRID_SIZE*TILE_SIZE) / (len(m.games) + 1)
+	marginY := (size.Y - GRID_SIZE*TILE_SIZE) / 2
+
+	for i, game := range m.games {
+		img := game.GetImage()
+		x := i*img.Bounds().Dx() + (i+1)*marginX
+		y := marginY
+
+		op := ebiten.DrawImageOptions{}
+		op.GeoM.Translate(float64(x), float64(y))
+
+		screen.DrawImage(img, &op)
 	}
+
 }
 
 func (m *Main) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -64,9 +86,10 @@ func (m *Main) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 }
 
 func main() {
-	ebiten.SetWindowSize(1000, 1000)
+	x, y := ebiten.Monitor().Size()
+	ebiten.SetWindowSize(x, y)
 	ebiten.SetWindowTitle("GoSnake")
-	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeOnlyFullscreenEnabled)
 	if err := ebiten.RunGame(NewMain()); err != nil {
 		log.Fatal(err)
 	}

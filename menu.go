@@ -56,6 +56,11 @@ func CreateMenu(main *Main) *widget.Container {
 			}),
 			widget.WidgetOpts.MinSize(180, 48),
 		),
+		widget.ButtonOpts.ClickedHandler(
+			func(args *widget.ButtonClickedEventArgs) {
+				main.StartTwoPlayers()
+			},
+		),
 	)
 
 	menuContainer := widget.NewContainer(

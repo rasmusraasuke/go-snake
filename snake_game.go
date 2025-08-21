@@ -71,19 +71,13 @@ func (g *SnakeGame) Update() error {
 	return nil
 }
 
-func (g *SnakeGame) Draw(screen *ebiten.Image) {
+func (g *SnakeGame) GetImage() *ebiten.Image {
 	g.screen.DrawImage(snakeGrid, &ebiten.DrawImageOptions{})
+
 	for _, food := range g.food {
 		food.Draw(g.screen)
 	}
 	g.snake.Draw(g.screen)
 
-	size := screen.Bounds().Size()
-	xMargin := float64((size.X - TILE_SIZE*GRID_SIZE) / 2)
-	yMargin := float64((size.Y - TILE_SIZE*GRID_SIZE) / 2)
-
-	op := ebiten.DrawImageOptions{}
-	op.GeoM.Translate(xMargin, yMargin)
-
-	screen.DrawImage(g.screen, &op)
+	return g.screen
 }
