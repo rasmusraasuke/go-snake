@@ -41,12 +41,12 @@ func (b *Board) Update() error {
 
 	newX, newY := b.snake.CalculateNextPos()
 	if newX < 0 || newY < 0 || newX >= GRID_SIZE || newY >= GRID_SIZE {
-		return errors.New("Snake hit it's head against the wall!")
+		return errors.New(b.snake.playerName + " hit the wall.")
 	}
 
 	for i, bodyElement := range b.snake.body {
 		if i != len(b.snake.body)-1 && bodyElement.xPos == newX && bodyElement.yPos == newY {
-			return errors.New("Snake hit itself!")
+			return errors.New(b.snake.playerName + " hit itself!")
 		}
 	}
 
@@ -54,8 +54,6 @@ func (b *Board) Update() error {
 
 	b.snake.Move(newX, newY)
 	switch b.food[coordiate].Type {
-	case 0:
-
 	case Cherry:
 		b.game.FeedOtherSnake(b.snake.playerName)
 		delete(b.food, coordiate)

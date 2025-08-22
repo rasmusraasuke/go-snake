@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"math/rand/v2"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -17,15 +18,15 @@ type Game struct {
 	boards []*Board
 }
 
-func NewGame(players map[string]InputType) *Game {
+func NewGame(players [2]*Player) *Game {
 	game := &Game{}
 	snakes := *new([]*Snake)
 	boards := *new([]*Board)
 
-	for name, input := range players {
+	for _, player := range players {
 		coordinate := Coordinate{int(GRID_SIZE / 2), int(GRID_SIZE / 2)}
 		startOrient := rand.IntN(4)
-		snake := NewSnake(name, coordinate, Direction(startOrient), input)
+		snake := NewSnake(player.name, coordinate, Direction(startOrient), player.input)
 
 		board := NewBoard(game, snake)
 
@@ -49,12 +50,19 @@ func (g *Game) FeedOtherSnake(ownName string) {
 }
 
 func (g *Game) Update() error {
+	gameErrors := *new([]error)
 	for _, board := range g.boards {
 		error := board.Update()
 
 		if error != nil {
-			return error
+			gameErrors = append(gameErrors, error)
 		}
+	}
+
+	if len(gameErrors) == 2 {
+		return errors.New("Draw")
+	} else if len(gameErrors) == 1 {
+		return gameErrors[0]
 	}
 	return nil
 }
