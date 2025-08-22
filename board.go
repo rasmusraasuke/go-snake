@@ -51,9 +51,11 @@ func (b *Board) Update() error {
 	}
 
 	coordiate := Coordinate{int(newX), int(newY)}
+
+	b.snake.Move(newX, newY)
 	switch b.food[coordiate].Type {
 	case 0:
-		b.snake.Move(newX, newY)
+
 	case Cherry:
 		b.game.FeedOtherSnake(b.snake.playerName)
 		delete(b.food, coordiate)

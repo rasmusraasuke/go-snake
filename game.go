@@ -39,7 +39,13 @@ func NewGame(players map[string]InputType) *Game {
 }
 
 func (g *Game) FeedOtherSnake(ownName string) {
+	for _, snake := range g.snakes {
+		if snake.playerName == ownName {
+			continue
+		}
 
+		snake.EatCherry()
+	}
 }
 
 func (g *Game) Update() error {

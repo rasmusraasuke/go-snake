@@ -104,9 +104,10 @@ func (s *Snake) CalculateNextPos() (int, int) {
 	return headX, headY
 }
 
-func (s *Snake) EatCherry(newX, newY int) {
-	newBodyElement := NewBodyElement(newX, newY)
-	s.body = append([]*BodyElement{newBodyElement}, s.body...)
+func (s *Snake) EatCherry() {
+	lastBodyElement := s.body[len(s.body)-1]
+	newBodyElement := NewBodyElement(lastBodyElement.xPos, lastBodyElement.yPos)
+	s.body = append(s.body, newBodyElement)
 }
 
 func (s *Snake) Move(newX, newY int) {
