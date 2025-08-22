@@ -65,16 +65,16 @@ func (m *Main) Draw(screen *ebiten.Image) {
 	m.ui.Draw(screen)
 
 	size := screen.Bounds().Size()
-	marginX := (size.X - GRID_SIZE*TILE_SIZE) / (len(m.games) + 1)
-	marginY := (size.Y - GRID_SIZE*TILE_SIZE) / 2
+	marginX := float64(size.X-GRID_SIZE*TILE_SIZE*len(m.games)) / float64(len(m.games)+1)
+	marginY := float64(size.Y-GRID_SIZE*TILE_SIZE) / 2
 
 	for i, game := range m.games {
 		img := game.GetImage()
-		x := i*img.Bounds().Dx() + (i+1)*marginX
+		x := float64(i)*float64(img.Bounds().Dx()) + float64(i+1)*marginX
 		y := marginY
 
 		op := ebiten.DrawImageOptions{}
-		op.GeoM.Translate(float64(x), float64(y))
+		op.GeoM.Translate(x, y)
 
 		screen.DrawImage(img, &op)
 	}
