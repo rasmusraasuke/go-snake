@@ -1,10 +1,10 @@
 package main
 
 type Player struct {
-	inputType InputType
+	name      string
+	bestScore int
 }
 
-func NewPlayer(input InputType) *Player {
-	player := Player{input}
-	return &player
+func NewPlayer(name string) *Player {
+	return &Player{name: name, bestScore: 0}
 }

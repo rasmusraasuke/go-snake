@@ -14,15 +14,17 @@ func init() {
 }
 
 type Main struct {
-	ui      *ebitenui.UI
+	state   State
 	players []*Player
-	games   []*SnakeGame
+	game    *Game
+	ui      *ebitenui.UI
 }
 
 func NewMain() *Main {
 	main := Main{
+		state:   MAIN_MENU,
 		players: *new([]*Player),
-		games:   *new([]*SnakeGame),
+		game:    &Game{},
 		ui:      &ebitenui.UI{},
 	}
 
@@ -31,54 +33,40 @@ func NewMain() *Main {
 
 }
 
-func (m *Main) StartSinglePlayer() {
-	player := NewPlayer(WASD)
-	game := NewSnakeGame(*player)
+func (m *Main) StartSinglePlayer(name string, input InputType) {
+	players := make(map[string]InputType)
+	players[name] = input
+	players["Computer"] = COMPUTER
 
-	m.players = append(m.players, player)
-	m.games = append(m.games, game)
+	m.game = NewGame(players)
+	m.state = GAME
 }
 
-func (m *Main) StartTwoPlayers() {
-	player1 := NewPlayer(WASD)
-	player2 := NewPlayer(ARROWS)
-	game1 := NewSnakeGame(*player1)
-	game2 := NewSnakeGame(*player2)
+func (m *Main) StartTwoPlayers(name1, name2 string, input1, input2 InputType) {
+	players := make(map[string]InputType)
+	players[name1] = input1
+	players[name2] = input2
 
-	m.players = append(m.players, player1, player2)
-	m.games = append(m.games, game1, game2)
+	m.game = NewGame(players)
+	m.state = GAME
 }
 
 func (m *Main) Update() error {
-	m.ui.Update()
-	for _, game := range m.games {
-		error := game.Update()
-
-		if error != nil {
-			return error
-		}
+	if m.state == MAIN_MENU {
+		m.ui.Update()
+	} else if m.state == GAME {
+		m.game.Update()
 	}
+
 	return nil
 }
 
 func (m *Main) Draw(screen *ebiten.Image) {
-	m.ui.Draw(screen)
-
-	size := screen.Bounds().Size()
-	marginX := float64(size.X-GRID_SIZE*TILE_SIZE*len(m.games)) / float64(len(m.games)+1)
-	marginY := float64(size.Y-GRID_SIZE*TILE_SIZE) / 2
-
-	for i, game := range m.games {
-		img := game.GetImage()
-		x := float64(i)*float64(img.Bounds().Dx()) + float64(i+1)*marginX
-		y := marginY
-
-		op := ebiten.DrawImageOptions{}
-		op.GeoM.Translate(x, y)
-
-		screen.DrawImage(img, &op)
+	if m.state == MAIN_MENU {
+		m.ui.Draw(screen)
+	} else if m.state == GAME {
+		m.game.Draw(screen)
 	}
-
 }
 
 func (m *Main) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {

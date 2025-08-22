@@ -8,20 +8,20 @@ import (
 )
 
 type Snake struct {
-	Body          []BodyElement
+	playerName    string
+	body          []*BodyElement
 	orientation   Direction
 	movementQueue []Direction
 	keys          map[Direction]ebiten.Key
 }
 
-func NewSnake(xPos, yPos int, orient Direction, input InputType) *Snake {
-	body := []BodyElement{*NewBodyElement(xPos, yPos)}
-
-	keys := setKeys(input)
+func NewSnake(playerName string, pos Coordinate, orient Direction, input InputType) *Snake {
+	head := NewBodyElement(pos.x, pos.y)
+	body := []*BodyElement{head}
 	queue := new([]Direction)
+	keys := setKeys(input)
 
-	snake := Snake{body, orient, *queue, keys}
-
+	snake := Snake{playerName, body, orient, *queue, keys}
 	return &snake
 }
 
@@ -78,8 +78,8 @@ func (s *Snake) tryAddDirection(newDirection Direction) {
 }
 
 func (s *Snake) CalculateNextPos() (int, int) {
-	headX := s.Body[0].XPos
-	headY := s.Body[0].YPos
+	headX := s.body[0].xPos
+	headY := s.body[0].yPos
 
 	var newOrientation Direction
 	if len(s.movementQueue) != 0 {
@@ -106,16 +106,16 @@ func (s *Snake) CalculateNextPos() (int, int) {
 
 func (s *Snake) EatCherry(newX, newY int) {
 	newBodyElement := NewBodyElement(newX, newY)
-	s.Body = append([]BodyElement{*newBodyElement}, s.Body...)
+	s.body = append([]*BodyElement{newBodyElement}, s.body...)
 }
 
 func (s *Snake) Move(newX, newY int) {
-	s.Body = moveLastToFirst(s.Body)
-	s.Body[0].XPos = newX
-	s.Body[0].YPos = newY
+	s.body = moveLastToFirst(s.body)
+	s.body[0].xPos = newX
+	s.body[0].yPos = newY
 }
 
-func moveLastToFirst(body []BodyElement) []BodyElement {
+func moveLastToFirst(body []*BodyElement) []*BodyElement {
 	if len(body) <= 1 {
 		return body
 	}
@@ -130,9 +130,9 @@ func moveLastToFirst(body []BodyElement) []BodyElement {
 }
 
 func (s *Snake) Draw(screen *ebiten.Image) {
-	for _, bodyElement := range s.Body {
-		x := float32(TILE_SIZE * bodyElement.XPos)
-		y := float32(TILE_SIZE * bodyElement.YPos)
+	for _, bodyElement := range s.body {
+		x := float32(TILE_SIZE * bodyElement.xPos)
+		y := float32(TILE_SIZE * bodyElement.yPos)
 		vector.DrawFilledRect(screen, x, y, TILE_SIZE, TILE_SIZE, colornames.Peru, true)
 	}
 }

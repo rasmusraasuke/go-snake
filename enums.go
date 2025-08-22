@@ -1,5 +1,13 @@
 package main
 
+type State int
+
+const (
+	MAIN_MENU State = iota
+	GAME
+	GAME_OVER
+)
+
 type Direction int
 
 const (
@@ -15,13 +23,7 @@ const (
 	WASD InputType = iota
 	ARROWS
 	VIM
-)
-
-type Color int
-
-const (
-	Green Color = iota
-	Yellow
+	COMPUTER
 )
 
 type FoodType int

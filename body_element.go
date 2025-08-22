@@ -1,12 +1,12 @@
 package main
 
 type BodyElement struct {
-	XPos, YPos int
+	xPos, yPos int
 }
 
 func NewBodyElement(x, y int) *BodyElement {
 	return &BodyElement{
-		XPos: x,
-		YPos: y,
+		xPos: x,
+		yPos: y,
 	}
 }

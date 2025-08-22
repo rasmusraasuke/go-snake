@@ -31,7 +31,7 @@ func CreateMenu(main *Main) *widget.Container {
 		),
 		widget.ButtonOpts.ClickedHandler(
 			func(args *widget.ButtonClickedEventArgs) {
-				main.StartSinglePlayer()
+				main.StartSinglePlayer("Test", WASD)
 			},
 		),
 	)
@@ -58,7 +58,7 @@ func CreateMenu(main *Main) *widget.Container {
 		),
 		widget.ButtonOpts.ClickedHandler(
 			func(args *widget.ButtonClickedEventArgs) {
-				main.StartTwoPlayers()
+				main.StartTwoPlayers("Test1", "Test2", WASD, ARROWS)
 			},
 		),
 	)

@@ -1,8 +1,11 @@
 package main
 
-const GRID_SIZE = 15 // Tiles
+const BOARD_COUNT = 2 // Count
+
 const TILE_SIZE = 40 // Pixels
 const WAIT_TIME = 10 // Ticks
+
+const GRID_SIZE = 15 // Tiles
 
 const backgroundSize = 225 // Pixels
 const cherrySize = 360     // Pixels
