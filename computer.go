@@ -48,6 +48,21 @@ func getValidNeighbours(grid *[GRID_SIZE][GRID_SIZE]int, pos Coordinate) []Coord
 	return validMoves
 }
 
+func GetBestNeighbour(grid *[GRID_SIZE][GRID_SIZE]int, pos Coordinate) Coordinate {
+	neighbours := getValidNeighbours(grid, pos)
+
+	mostFreeNeighbours := 0
+	var bestNeighbour Coordinate
+	for _, neighbour := range neighbours {
+		freeNeighbours := len(getValidNeighbours(grid, neighbour))
+		if freeNeighbours > mostFreeNeighbours {
+			mostFreeNeighbours = freeNeighbours
+			bestNeighbour = neighbour
+		}
+	}
+	return bestNeighbour
+}
+
 func reconstructPath(goalNode *Node) []Coordinate {
 	path := *new([]Coordinate)
 	current := goalNode

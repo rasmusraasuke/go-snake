@@ -52,8 +52,14 @@ func (b *Board) getComputerMove() (int, int) {
 	}
 
 	grid := b.getGrid()
+
 	path := FindPath(grid, headPos, foodPos)
-	nextMove := path[1]
+	var nextMove Coordinate
+	if len(path) != 0 {
+		nextMove = path[1]
+	} else {
+		nextMove = GetBestNeighbour(&grid, headPos)
+	}
 
 	return nextMove.x, nextMove.y
 }
