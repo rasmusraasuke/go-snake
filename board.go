@@ -24,13 +24,62 @@ func NewBoard(game *Game, snake *Snake) *Board {
 	return board
 }
 
+func (b *Board) getGrid() [GRID_SIZE][GRID_SIZE]int {
+	grid := new([GRID_SIZE][GRID_SIZE]int)
+
+	for y := range grid {
+		for x := range grid[y] {
+			grid[y][x] = 0
+		}
+	}
+
+	for _, bodyElement := range b.snake.body[1:] {
+		grid[bodyElement.yPos][bodyElement.xPos] = 1
+	}
+
+	return *grid
+}
+
+func (b *Board) getComputerMove() (int, int) {
+	snakeHead := b.snake.body[0]
+	headPos := Coordinate{x: snakeHead.xPos, y: snakeHead.yPos}
+	var foodPos Coordinate
+	for cord, food := range b.food {
+		if food.Type == Cherry {
+			foodPos = cord
+			break
+		}
+	}
+
+	grid := b.getGrid()
+	path := FindPath(grid, headPos, foodPos)
+	nextMove := path[1]
+
+	return nextMove.x, nextMove.y
+}
+
+func (b *Board) createNewFood(foodType FoodType) {
+	openPos := *new([]Coordinate)
+	grid := b.getGrid()
+	for y := range GRID_SIZE {
+		for x := range GRID_SIZE {
+			if grid[y][x] != 1 {
+				openPos = append(openPos, Coordinate{x: x, y: y})
+			}
+		}
+	}
+
+	randIndex := rand.IntN(len(openPos))
+	randCord := openPos[randIndex]
+	food := NewFood(foodType, randCord.x, randCord.y)
+	b.food[randCord] = *food
+}
+
 func (b *Board) Update() error {
 	b.snake.UpdateMovementQueue()
 
 	if len(b.food) == 0 {
-		randX := rand.IntN(GRID_SIZE)
-		randY := rand.IntN(GRID_SIZE)
-		b.food[Coordinate{randX, randY}] = *NewFood(Cherry, randX, randY)
+		b.createNewFood(Cherry)
 	}
 
 	if b.wait < WAIT_TIME {
@@ -39,7 +88,15 @@ func (b *Board) Update() error {
 	}
 	b.wait = 0
 
-	newX, newY := b.snake.CalculateNextPos()
+	var newX, newY int
+	switch b.snake.playerName {
+	case "Computer":
+		newX, newY = b.getComputerMove()
+	default:
+
+		newX, newY = b.snake.CalculateNextPos()
+	}
+
 	if newX < 0 || newY < 0 || newX >= GRID_SIZE || newY >= GRID_SIZE {
 		return errors.New(b.snake.playerName + " hit the wall.")
 	}
