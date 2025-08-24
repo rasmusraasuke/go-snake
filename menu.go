@@ -31,7 +31,7 @@ func CreateMenu(main *Main) *widget.Container {
 		),
 		widget.ButtonOpts.ClickedHandler(
 			func(args *widget.ButtonClickedEventArgs) {
-				main.StartSinglePlayer("Test", ARROWS)
+				main.StartSinglePlayer("Test", WASD)
 			},
 		),
 	)

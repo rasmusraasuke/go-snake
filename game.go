@@ -3,8 +3,10 @@ package main
 import (
 	"errors"
 	"math/rand/v2"
+	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"golang.org/x/image/colornames"
 )
@@ -14,12 +16,14 @@ type Coordinate struct {
 }
 
 type Game struct {
+	scores map[string]int
 	snakes []*Snake
 	boards []*Board
 }
 
 func NewGame(players [2]*Player) *Game {
 	game := &Game{}
+	scores := make(map[string]int)
 	snakes := *new([]*Snake)
 	boards := *new([]*Board)
 
@@ -30,10 +34,12 @@ func NewGame(players [2]*Player) *Game {
 
 		board := NewBoard(game, snake)
 
+		scores[player.name] = 0
 		snakes = append(snakes, snake)
 		boards = append(boards, board)
 	}
 
+	game.scores = scores
 	game.boards = boards
 	game.snakes = snakes
 	return game
@@ -74,14 +80,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	vector.DrawFilledRect(screen, 0, 0, float32(size.X), float32(size.Y), colornames.Darkolivegreen, true)
 	for i, board := range g.boards {
-		board := board.GetBoard()
+		boardScreen := board.GetBoard()
+		player := board.snake.playerName
+		score := g.scores[player]
 
-		x := float64(i)*float64(board.Bounds().Dx()) + float64(i+1)*marginX
+		x := float64(i)*float64(boardScreen.Bounds().Dx()) + float64(i+1)*marginX
 		y := marginY
+
+		ebitenutil.DebugPrintAt(screen, strconv.Itoa(score), int(x+GRID_SIZE/2), int(y/2))
 
 		op := ebiten.DrawImageOptions{}
 		op.GeoM.Translate(x, y)
 
-		screen.DrawImage(board, &op)
+		screen.DrawImage(boardScreen, &op)
 	}
 }

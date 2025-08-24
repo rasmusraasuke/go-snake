@@ -1,16 +1,36 @@
 package main
 
 import (
+	"strconv"
+
 	"github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
 	"golang.org/x/image/colornames"
 )
 
-func CreateGameOver(main *Main, gameOverText string) *widget.Container {
+func CreateGameOver(main *Main, gameOverText string, scores map[string]int) *widget.Container {
 	font := DefaultFont()
 
 	endText := widget.NewText(
 		widget.TextOpts.Text(gameOverText, &font, colornames.Forestgreen),
+		widget.TextOpts.Position(
+			widget.TextPositionCenter,
+			widget.TextPositionCenter,
+		),
+		widget.TextOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+				Stretch: true,
+			}),
+		),
+	)
+
+	var scoreString string
+	for player, score := range scores {
+		scoreString += player + ": " + strconv.Itoa(score) + "   "
+	}
+
+	scoresText := widget.NewText(
+		widget.TextOpts.Text(scoreString, &font, colornames.Forestgreen),
 		widget.TextOpts.Position(
 			widget.TextPositionCenter,
 			widget.TextPositionCenter,
@@ -73,6 +93,7 @@ func CreateGameOver(main *Main, gameOverText string) *widget.Container {
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
 
+	menuContainer.AddChild(scoresText)
 	menuContainer.AddChild(endText)
 	menuContainer.AddChild(backButton)
 

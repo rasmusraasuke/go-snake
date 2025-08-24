@@ -74,7 +74,7 @@ func (m *Main) Update() error {
 		error := m.game.Update()
 		if error != nil {
 			m.state = GAME_OVER
-			m.ui.Container = CreateGameOver(m, error.Error())
+			m.ui.Container = CreateGameOver(m, error.Error(), m.game.scores)
 		}
 	}
 	return nil

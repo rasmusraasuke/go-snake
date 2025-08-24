@@ -33,7 +33,7 @@ func (b *Board) getGrid() [GRID_SIZE][GRID_SIZE]int {
 		}
 	}
 
-	for _, bodyElement := range b.snake.body[1:] {
+	for _, bodyElement := range b.snake.body {
 		grid[bodyElement.yPos][bodyElement.xPos] = 1
 	}
 
@@ -99,7 +99,6 @@ func (b *Board) Update() error {
 	case "Computer":
 		newX, newY = b.getComputerMove()
 	default:
-
 		newX, newY = b.snake.CalculateNextPos()
 	}
 
@@ -118,6 +117,7 @@ func (b *Board) Update() error {
 	b.snake.Move(newX, newY)
 	switch b.food[coordiate].Type {
 	case Cherry:
+		b.game.scores[b.snake.playerName] = b.game.scores[b.snake.playerName] + 1
 		b.game.FeedOtherSnake(b.snake.playerName)
 		delete(b.food, coordiate)
 	}
