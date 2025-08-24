@@ -81,13 +81,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	vector.DrawFilledRect(screen, 0, 0, float32(size.X), float32(size.Y), colornames.Darkolivegreen, true)
 	for i, board := range g.boards {
 		boardScreen := board.GetBoard()
-		player := board.snake.playerName
-		score := g.scores[player]
 
 		x := float64(i)*float64(boardScreen.Bounds().Dx()) + float64(i+1)*marginX
 		y := marginY
-
-		ebitenutil.DebugPrintAt(screen, strconv.Itoa(score), int(x+GRID_SIZE/2), int(y/2))
 
 		op := ebiten.DrawImageOptions{}
 		op.GeoM.Translate(x, y)
