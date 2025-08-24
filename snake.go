@@ -110,30 +110,31 @@ func (s *Snake) EatCherry() {
 	s.body = append(s.body, newBodyElement)
 }
 
-func (s *Snake) Move(newX, newY int) {
-	s.body = moveLastToFirst(s.body)
-	s.body[0].xPos = newX
-	s.body[0].yPos = newY
-}
-
-func moveLastToFirst(body []*BodyElement) []*BodyElement {
-	if len(body) <= 1 {
-		return body
+func (s *Snake) MoveAnimation() {
+	for _, bodyElement := range s.body {
+		x := float64(bodyElement.xPos-bodyElement.lastX) / WAIT_TIME
+		y := float64(bodyElement.yPos-bodyElement.lastY) / WAIT_TIME
+		bodyElement.visualX += x
+		bodyElement.visualY += y
 	}
 
-	lastBodyElement := body[len(body)-1]
+}
 
-	copy(body[1:], body[:len(body)-1])
-
-	body[0] = lastBodyElement
-
-	return body
+func (s *Snake) Move(newX, newY int) {
+	for _, bodyElement := range s.body {
+		bodyElement.lastX = bodyElement.xPos
+		bodyElement.lastY = bodyElement.yPos
+		bodyElement.xPos = newX
+		bodyElement.yPos = newY
+		newX = bodyElement.lastX
+		newY = bodyElement.lastY
+	}
 }
 
 func (s *Snake) Draw(screen *ebiten.Image) {
 	for _, bodyElement := range s.body {
-		x := float32(TILE_SIZE * bodyElement.xPos)
-		y := float32(TILE_SIZE * bodyElement.yPos)
+		x := float32(TILE_SIZE * bodyElement.visualX)
+		y := float32(TILE_SIZE * bodyElement.visualY)
 		vector.DrawFilledRect(screen, x, y, TILE_SIZE, TILE_SIZE, colornames.Peru, true)
 	}
 }

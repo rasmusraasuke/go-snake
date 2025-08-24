@@ -89,6 +89,7 @@ func (b *Board) Update() error {
 	}
 
 	if b.wait < WAIT_TIME {
+		b.snake.MoveAnimation()
 		b.wait++
 		return nil
 	}
