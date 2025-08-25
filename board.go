@@ -96,11 +96,16 @@ func (b *Board) Update() error {
 	b.wait = 0
 
 	var newX, newY int
+
 	switch b.snake.playerName {
 	case "Computer":
 		newX, newY = b.getComputerMove()
 	default:
 		newX, newY = b.snake.CalculateNextPos()
+	}
+
+	if b.snake.orientation == Halt && b.snake.playerName != "Computer" {
+		return nil
 	}
 
 	if newX < 0 || newY < 0 || newX >= GRID_SIZE || newY >= GRID_SIZE {

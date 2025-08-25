@@ -11,7 +11,8 @@ const (
 type Direction int
 
 const (
-	Up Direction = iota
+	Halt Direction = iota
+	Up
 	Right
 	Down
 	Left

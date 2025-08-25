@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"math/rand/v2"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -27,8 +26,7 @@ func NewGame(players [2]*Player) *Game {
 
 	for _, player := range players {
 		coordinate := Coordinate{int(GRID_SIZE / 2), int(GRID_SIZE / 2)}
-		startOrient := rand.IntN(4)
-		snake := NewSnake(player.name, coordinate, Direction(startOrient), player.input)
+		snake := NewSnake(player.name, coordinate, Halt, player.input)
 
 		board := NewBoard(game, snake)
 
